@@ -31,7 +31,7 @@
                 <district>3</district>
             </address>
             <endpoints>
-                <tokenize_uri>https://api-payments.koin.com.br/</tokenize_uri>
+                <tokenize_uri>https://api-secure.koin.com.br/</tokenize_uri>
                 <tokenize_uri_sandbox>https://api-sandbox.koin.com.br/</tokenize_uri_sandbox>
                 <payments_uri>https://api-payments.koin.com.br/</payments_uri>
                 <payments_uri_sandbox>https://api-sandbox.koin.com.br/</payments_uri_sandbox>

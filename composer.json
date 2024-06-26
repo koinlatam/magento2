@@ -2,7 +2,7 @@
     "name": "koin/payment",
     "description": "Koin Payment Method for Magento 2.3.7+",
     "type": "magento2-module",
-    "version": "2.6.9",
+    "version": "2.6.10",
     "license": [
         "OSL-3.0",
         "AFL-3.0"

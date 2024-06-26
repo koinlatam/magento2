@@ -297,3 +297,6 @@ v2.6.8
 
 v2.6.9
 - Fix: error, rule title being shwon if the rule was already on quote
+
+v2.6.10
+- Feat: change token url for production environments
