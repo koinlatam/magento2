@@ -343,8 +343,10 @@ class PaymentsRequest
 
         if ($this->helper->validateCnpj($customerTaxVat)) {
             $document->type = 'cnpj';
+            $document->number = preg_replace('/[^0-9]/', '', $customerTaxVat);
         } elseif ($this->helper->validateCpf($customerTaxVat)) {
             $document->type = 'cpf';
+            $document->number = preg_replace('/[^0-9]/', '', $customerTaxVat);
         }
         return $document;
     }

@@ -106,4 +106,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Fix: send number as quantity for transactions
 
 ### v2.7.7
-- Fix: callback url for admin onrders 
+- Fix: callback url for admin orders 
+
+### v2.7.8
+- Fix: send only number for brazilian doc numbers CPF and CNPJ
+
