@@ -96,7 +96,13 @@ class Client
             $headers['User-Agent'] = 'koin-oficial';
         }
 
+        return $headers;
+    }
 
+    protected function get3DSHeaders($storeId = null): array
+    {
+        $headers = $this->getDefaultHeaders($storeId);
+        $headers['xdesp-mock-risk-juggler'] = 'verdict=inprogress|strategy=3DS2CHALLENGE';
         return $headers;
     }
 
@@ -159,6 +165,7 @@ class Client
     {
         $apiType = $this->getApiType();
         $api = $this->getApi($path, $apiType, $storeId);
+
         $api->setMethod($method);
         if (!empty($data)) {
             $api->setRawBody($this->json->serialize($data));

@@ -24,7 +24,6 @@ use Koin\Payment\Helper\Installments;
 use Koin\Payment\Model\Ui\CreditCard\ConfigProvider;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Session\SessionManagerInterface;
-use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address\Total;
@@ -47,60 +46,28 @@ class Interest extends AbstractTotal
     public function __construct(
         Session $checkoutSession,
         SessionManagerInterface $session,
-        Installments $helperInstallments,
-        CartRepositoryInterface $quoteRepository
+        Installments $helperInstallments
     ) {
         $this->setCode('koin_interest');
         $this->checkoutSession = $checkoutSession;
         $this->session = $session;
         $this->helperInstallments = $helperInstallments;
-        $this->quoteRepository = $quoteRepository;
     }
 
-    /**
-     * Return selected installments
-     *
-     * @return int
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    protected function getInstallments()
-    {
-        $installments = 0;
-
-        /** @var Quote $quote */
-        //Prepared for Koin transparent
-        $quoteId = $this->checkoutSession->getQuoteId();
-        if ($quoteId) {
-            $quote = $this->quoteRepository->get($quoteId);
-            if ($quote->getPayment()->getMethod() == ConfigProvider::CODE) {
-                $installments = (int)$this->checkoutSession->getData('koin_installments');
-            }
-        }
-
-        return $installments;
-    }
-
-    /**
+    /***
      * Calculate interest rate amount
      *
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Exception
+     * @param $quote
+     * @return float
      */
-    protected function getInterestAmount(): float
+    protected function getInterestAmount($quote): float
     {
-        $installments = $this->getInstallments();
+        $installments = (int)$this->checkoutSession->getData('koin_installments');
         if ($installments > 1) {
-            $quoteId = $this->checkoutSession->getQuoteId();
-            if ($quoteId) {
-                /** @var Quote $quote */
-                $quote = $this->quoteRepository->get($quoteId);
-                $grandTotal = $quote->getGrandTotal() - $quote->getKoinInterestAmount();
-                $installmentsPrice = $this->getInstallmentsPrice($quote, $grandTotal, $installments);
-                if ($installmentsPrice > $grandTotal) {
-                    return $installmentsPrice - $grandTotal;
-                }
+            $grandTotal = $quote->getGrandTotal() - $quote->getKoinInterestAmount();
+            $installmentsPrice = $this->getInstallmentsPrice($quote, $grandTotal, $installments);
+            if ($installmentsPrice > $grandTotal) {
+                return $installmentsPrice - $grandTotal;
             }
         }
 
@@ -115,7 +82,9 @@ class Interest extends AbstractTotal
 
             $selectedInstallment = array_filter(
                 $allInstallments,
-                fn($installment) => $installment['installments'] == $installmentsNumber
+                function ($installment) use ($installmentsNumber) {
+                    return $installment['installments'] == $installmentsNumber;
+                }
             );
 
             $installment = $selectedInstallment;
@@ -155,26 +124,29 @@ class Interest extends AbstractTotal
         ShippingAssignmentInterface $shippingAssignment,
         Total $total
     ) {
-        parent::collect($quote, $shippingAssignment, $total);
 
-        $items = $shippingAssignment->getItems();
-        if (!count($items)) {
+        if ($quote->getPayment()->getMethod() == ConfigProvider::CODE) {
+            parent::collect($quote, $shippingAssignment, $total);
+
+            $items = $shippingAssignment->getItems();
+            if (!count($items)) {
+                return $this;
+            }
+
+            $interest = $this->getInterestAmount($quote);
+
+            $quote->setKoinInterestAmount($interest);
+            $quote->setBaseKoinInterestAmount($interest);
+
+            $total->setKoinInterestDescription($this->getCode());
+            $total->setKoinInterestAmount($interest);
+            $total->setBaseKoinInterestAmount($interest);
+
+            $total->addTotalAmount($this->getCode(), $interest);
+            $total->addBaseTotalAmount($this->getCode(), $interest);
+
             return $this;
         }
-
-        $interest = $this->getInterestAmount();
-
-        $quote->setKoinInterestAmount($interest);
-        $quote->setBaseKoinInterestAmount($interest);
-
-        $total->setKoinInterestDescription($this->getCode());
-        $total->setKoinInterestAmount($interest);
-        $total->setBaseKoinInterestAmount($interest);
-
-        $total->addTotalAmount($this->getCode(), $interest);
-        $total->addBaseTotalAmount($this->getCode(), $interest);
-
-        return $this;
     }
 
     /**

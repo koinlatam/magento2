@@ -434,6 +434,12 @@ class Order extends \Magento\Payment\Helper\Data
                 $payment->setAdditionalInformation('installments', $content['installments']);
             }
 
+            if (isset($content['installments'])) {
+                $payment->setAdditionalInformation('installments', $content['installments']);
+            } else if (isset($content['installment_option']) && isset($content['installment_option']['installments'])) {
+                $payment->setAdditionalInformation('installments', $content['installment_option']['installments']);
+            }
+
             if (isset($content['transaction']['reference_id'])) {
                 $payment->setAdditionalInformation('reference_id', $content['transaction']['reference_id']);
             }
