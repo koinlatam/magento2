@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  *
  *
@@ -58,7 +61,8 @@ class Risk extends Callback
                     $content['evaluation_id'],
                     $content['status'],
                     $content['score'],
-                    $content['analysis_type']
+                    $content['analysis_type'],
+                    $content['strategies'][0]['link'] ?? null
                 );
 
                 /** @var \Koin\Payment\Model\Callback $callBack */

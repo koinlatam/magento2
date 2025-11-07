@@ -49,6 +49,22 @@
             <comment><![CDATA[Display "Allow Buy with Koin" button on shopping cart page below Proceed to Checkout]]></comment>
         </field>
 
+        <field id="show_payment_error_modal" translate="label comment" type="select" sortOrder="117" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+            <label>Show BNPL Modal After Other Payment Methods Fail</label>
+            <config_path>payment/koin_redirect/show_payment_error_modal</config_path>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <comment><![CDATA[If set to Yes, a modal with instructions will be displayed when other payment methods are unsuccessful.]]></comment>
+        </field>
+
+        <field id="payment_error_modal_instructions" translate="label comment" type="textarea" sortOrder="118" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>BNPL Modal Instructions</label>
+            <config_path>payment/koin_redirect/payment_error_modal_instructions</config_path>
+            <comment><![CDATA[Instructions to be shown in BNPL modal, it can be HTML]]></comment>
+            <depends>
+                <field id="show_payment_error_modal">1</field>
+            </depends>
+        </field>
+
         <field id="use_default_checkout_instructions" translate="label comment" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
             <label>Use Default Checkout Instructions</label>
             <config_path>payment/koin_redirect/use_default_checkout_instructions</config_path>

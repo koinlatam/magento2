@@ -112,7 +112,7 @@ Payment Methods selected to send to analysis,Métodos de Pago seleccionados para
 Change Status Approved Orders,Cambiar Estado de Pedidos Aprobados
 Minimum Order Amount,Monto Mínimo del Pedido
 Maximum Order Amount,Monto Máximo del Pedido
-Aproved Order Status,Estado de Pedido Aprobado
+Approved Order Status,Estado de Pedido Aprobado
 Denied Order Status,Estado de Pedido Denegado
 Denied Cancelled Order Status,Estado de Pedido Denegado Cancelado
 Status used to denied but not cancelled orders,Estado utilizado para pedidos denegados pero no cancelados
@@ -149,7 +149,6 @@ Capture Approved Orders,Capturar Pedidos Aprobados
 "If 'yes', it'll trigger a capture command to payment method provider, it depends on availability of the payment method to send capture commands to the issuer","Si 'sí', se activará un comando de captura al proveedor del método de pago, depende de la disponibilidad del método de pago para enviar comandos de captura al emisor"
 Koin - Card with Antifraud,Koin - Tarjeta con Antifraude
 Credit Card with Antifraud,Tarjeta de Crédito con Antifraude
-"To work with Fraud Analysis, it's mandatory to enable Magento Cron functions, the fraud analysis are sent to koin through crontab","Para trabajar con el Análisis de Fraude, es obligatorio habilitar las funciones de Cron de Magento, el análisis de fraude se envía a Koin a través de crontab"
 Credit Card Information not provided,Información de la Tarjeta de Crédito no proporcionada
 Card Installments,Cuotas de la Tarjeta
 What is this?,¿Qué es esto?
@@ -286,3 +285,11 @@ Card Installments,Cuotas de la Tarjeta
 "Payment method stored in localStorage","Metodo de pago almacenado en localStorage"
 "Error storing payment method","Error al almacenar el método de pago"
 "Change Card","Cambiar Tarjeta"
+"Show BNPL Modal After Other Payment Methods Fail","Mostrar Modal BNPL Después de que Otros Métodos de Pago Fallen"
+"If set to Yes, a modal with instructions will be displayed when other payment methods are unsuccessful.","Si se establece en Sí, se mostrará un modal con instrucciones cuando otros métodos de pago no tengan éxito."
+"BNPL Modal Instructions","Instrucciones del Modal BNPL"
+"Instructions to be shown in BNPL modal, it can be HTML","Instrucciones que se mostrarán en el modal BNPL, puede contener HTML"
+"Close","Cerrar"
+"Select BNPL","Seleccionar BNPL"
+"Enable Antifraud Strategies on Success Page","Activar Estrategias Antifraude en la Página de Éxito"
+"If 'Yes', the payment method using Koin Antifraud will display a validation for the final customer.","Si 'Sí', el método de pago que utiliza Koin Antifraud mostrará una validación para el cliente final."

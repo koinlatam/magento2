@@ -16,7 +16,6 @@
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <group id="koin_fraud_analysis" translate="label comment" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Fraud Analysis (Other Payment Methods)</label>
-        <comment>To work with Fraud Analysis, it's mandatory to enable Magento Cron functions, the fraud analysis are sent to koin through crontab</comment>
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enabled</label>
@@ -91,7 +90,7 @@
         </field>
 
         <field id="approved_status" translate="label comment" type="select" sortOrder="132" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Aproved Order Status</label>
+            <label>Approved Order Status</label>
             <source_model>Koin\Payment\Model\Config\Source\Order\ProcessingComplete</source_model>
             <config_path>koin/fraud_analysis/approved_status</config_path>
             <depends>
@@ -112,6 +111,13 @@
             <validate>validate-number validate-zero-or-greater</validate>
             <config_path>koin/fraud_analysis/min_order_total</config_path>
             <comment>It'll send to Koin only order with a grand total value higher than (or equal) the minimum amount</comment>
+        </field>
+
+        <field id="active_strategy" translate="label comment" type="select" sortOrder="2005" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Enable Antifraud Strategies on Success Page</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>koin/fraud_analysis/active_strategy</config_path>
+            <comment>If 'Yes', the payment method using Koin Antifraud will display a validation for the final customer.</comment>
         </field>
     </group>
 </include>

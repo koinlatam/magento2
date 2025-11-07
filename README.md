@@ -105,7 +105,6 @@ Em resumo, as funcionalidades são:
 - Escolher quais status de pedido irão para antifraude
 - Atualização de antifraude do pedido utilizando callback
 - Visualização do Status Antifraude na página do pedido
-- Envio via cron dos pedidos para análise antifraude
 
 #### Fluxo antifraude
 Para funcionar antifraude, deverá escolher quais métodos e status devem ser enviados para análise de fraude, após escolher

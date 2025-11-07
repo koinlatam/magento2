@@ -108,10 +108,7 @@ class Save extends Rule
 
     protected function filterMultiSelectValues(array $data, string $field): array
     {
-        $data[$field] = $data[$field] ? trim(implode(',', $data[$field])) : '';
-        if (!$data[$field]) {
-            $data[$field] = null;
-        }
+        $data[$field] = !empty($data[$field]) ? trim(implode(',', $data[$field])) : null;
 
         return $data;
     }

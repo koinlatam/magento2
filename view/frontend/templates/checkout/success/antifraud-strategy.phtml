@@ -1,0 +1,33 @@
+<?php
+/**
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Koin\Payment\ViewModel\Checkout\Success\AntifraudStrategy $viewModel
+ */
+
+$viewModel = $block->getViewModel();
+$strategyUrl = $block->escapeHtml($viewModel->getStrategyLink());
+?>
+
+<?php if ($viewModel->isPending() && $strategyUrl && $viewModel->isStrategiesEnabled()): ?>
+    <?php
+    $antifraudStrategyUrl = $block->escapeHtml($viewModel->getAntifraudStrategyUrl());
+    ?>
+    <div id="koin-modal-antifraud-strategy" style="display:none;">
+        <div class="modal-content">
+            <iframe id="koin-modal-iframe" src="<?= $strategyUrl ?>" width="100%" height="100%" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <script type="text/x-magento-init">
+        {
+            "*": {
+                "Koin_Payment/js/success/antifraud-strategy": {
+                    "antifraudStrategyUrl": "<?= $antifraudStrategyUrl ?>"
+                }
+            }
+        }
+    </script>
+
+<?php endif; ?>
+

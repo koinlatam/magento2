@@ -16,6 +16,17 @@
 /**
  * @var Koin\Payment\Block\Checkout\Fingerprint $block
  * @var \Magento\Framework\Escaper $escaper
+ * @var \Koin\Payment\ViewModel\Checkout\BnplModal $viewModel
  */
+
+$viewModel = $block->getViewModel();
+$canShowModal = $viewModel->canShowModal();
+$instructions = $viewModel->getInstructionsContent();
 ?>
+<?php if ($viewModel->canShowModal()): ?>
+<div id="bnpl-modal" style="display:none;">
+    <div class="content"><?= $escaper->escapeHtml($instructions, ['p', 'br', 'strong', 'em', 'u', 'a', 'h1', 'h2', 'h3', 'span', 'div']) ?></div>
+</div>
+<?php endif; ?>
+
 <script src="https://banner-checkout.koin.com.br/index.js"></script>

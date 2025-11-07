@@ -21,21 +21,18 @@
 namespace Koin\Payment\Helper;
 
 use Koin\Payment\Api\AntifraudRepositoryInterface;
-use Koin\Payment\Api\QueueRepositoryInterface;
 use Koin\Payment\Gateway\Http\Client;
 use Koin\Payment\Gateway\Http\Client\Risk\Api;
 use Koin\Payment\Helper\Data as HelperData;
 use Koin\Payment\Helper\Order as HelperOrder;
-use Koin\Payment\Model\ResourceModel\Queue\CollectionFactory as QueueCollectionFactory;
 use Koin\Payment\Model\AntifraudFactory;
-use Koin\Payment\Model\QueueFactory;
 use Koin\Payment\Model\ResourceModel\Antifraud\CollectionFactory;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Serialize\Serializer\Json;
-use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Model\Order as SalesOrder;
 use Magento\Sales\Model\OrderRepository;
@@ -54,77 +51,10 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
     public const PAYMENT_METHOD_CASH = 'Cash';
     public const DEFAULT_TYPE = 'Ecommerce';
 
-    /** @var QueueFactory  */
-    protected $queueFactory;
-
-    /** @var QueueRepositoryInterface  */
-    protected $queueRepository;
-
-    /** @var QueueCollectionFactory */
-    protected $queueCollectionFactory;
-
-    /** @var AntifraudFactory  */
-    protected $antifraudFactory;
-
-    /** @var CustomerSession  */
-    protected $customerSession;
-
-    /** @var AntifraudRepositoryInterface  */
-    protected $antifraudRepository;
-
-    /** @var CollectionFactory */
-    protected $antifraudCollectionFactory;
-
-    /** @var Json  */
-    protected $json;
-
-    /** @var HelperData */
-    protected $helperData;
-
-    /** @var HelperOrder */
-    protected $helperOrder;
-
-    /** @var OrderRepository */
-    protected $orderRepository;
-
-    /** @var Client */
-    protected $client;
-
-    /** @var Api */
-    protected $api;
-
-    /** @var ManagerInterface */
-    private $eventManager;
-
-    /**
-     * @var EncryptorInterface
-     */
-    private $encryptor;
-
-    /**
-     *  Koin Logging instance
-     *
-     * @var \Koin\Payment\Logger\Logger
-     */
-    protected $logger;
-
-    /**
-     * @var DateTime
-     */
-    protected $dateTime;
-
-    /**
-     * @var CategoryRepositoryInterface
-     */
-    protected $categoryRepository;
-
     /**
      * Data constructor.
      *
      * @param Context $context
-     * @param QueueFactory $queueFactory
-     * @param QueueRepositoryInterface $queueRepository
-     * @param QueueCollectionFactory $queueCollectionFactory
      * @param AntifraudFactory $antifraudFactory
      * @param AntifraudRepositoryInterface $antifraudRepository
      * @param CollectionFactory $antifraudCollectionFactory
@@ -133,8 +63,8 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
      * @param OrderRepository $orderRepository
      * @param ManagerInterface $eventManager
      * @param Json $json
-     * @param HelperData $helperData
-     * @param HelperOrder $helperOrder
+     * @param Data $helperData
+     * @param Order $helperOrder
      * @param Client $client
      * @param Api $api
      * @param DateTime $dateTime
@@ -142,95 +72,29 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function __construct(
         Context $context,
-        QueueFactory $queueFactory,
-        QueueRepositoryInterface $queueRepository,
-        QueueCollectionFactory $queueCollectionFactory,
-        AntifraudFactory $antifraudFactory,
-        AntifraudRepositoryInterface $antifraudRepository,
-        CollectionFactory $antifraudCollectionFactory,
-        CustomerSession $customerSession,
-        CategoryRepositoryInterface $categoryRepository,
-        OrderRepository $orderRepository,
-        ManagerInterface $eventManager,
-        Json $json,
-        HelperData $helperData,
-        HelperOrder $helperOrder,
-        Client $client,
-        Api $api,
-        DateTime $dateTime,
-        EncryptorInterface $encryptor
+        protected AntifraudFactory $antifraudFactory,
+        protected AntifraudRepositoryInterface $antifraudRepository,
+        protected CollectionFactory $antifraudCollectionFactory,
+        protected CustomerSession $customerSession,
+        protected CategoryRepositoryInterface $categoryRepository,
+        protected OrderRepository $orderRepository,
+        protected ManagerInterface $eventManager,
+        protected Json $json,
+        protected HelperData $helperData,
+        protected HelperOrder $helperOrder,
+        protected Client $client,
+        protected Api $api,
+        protected DateTime $dateTime,
+        protected EncryptorInterface $encryptor
     ) {
         parent::__construct($context);
-
-        $this->queueFactory = $queueFactory;
-        $this->queueRepository = $queueRepository;
-        $this->queueCollectionFactory = $queueCollectionFactory;
-        $this->antifraudFactory = $antifraudFactory;
-        $this->antifraudRepository = $antifraudRepository;
-        $this->antifraudCollectionFactory = $antifraudCollectionFactory;
-        $this->customerSession = $customerSession;
-        $this->categoryRepository = $categoryRepository;
-        $this->orderRepository = $orderRepository;
-        $this->eventManager = $eventManager;
-        $this->json = $json;
-        $this->helperData = $helperData;
-        $this->helperOrder = $helperOrder;
-        $this->client = $client;
-        $this->api = $api;
-        $this->dateTime = $dateTime;
-        $this->encryptor = $encryptor;
     }
 
     /**
      * @param SalesOrder $order
-     * @param $customerSessionId
      * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function addToQueue($order, $customerSessionId)
-    {
-        /** @var \Koin\Payment\Model\ResourceModel\Antifraud\Collection $collection */
-        $collection = $this->antifraudCollectionFactory->create();
-        $collection->addFieldToFilter('increment_id', $order->getIncrementId());
-        if (!$collection->getSize()) {
-            $antifraud = $this->antifraudFactory->create();
-            $antifraud->setStatus(Api::STATUS_QUEUED);
-            $antifraud->setIncrementId($order->getIncrementId());
-            $antifraud->setSessionId($customerSessionId);
-            $this->antifraudRepository->save($antifraud);
-
-            if ($antifraud->getId()) {
-                if (!$this->getQueue($antifraud->getId())) {
-                    $queue = $this->queueFactory->create();
-                    $queue->setResource(\Koin\Payment\Model\Antifraud::RESOURCE_CODE);
-                    $queue->setResourceId($antifraud->getId());
-                    $queue->setStatus(\Koin\Payment\Model\Queue::STATUS_PENDING);
-                    $this->queueRepository->save($queue);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param \Koin\Payment\Model\Queue $queue
-     * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function cancelQueue($queue)
-    {
-        if ($queue) {
-            $queue->setStatus(\Koin\Payment\Model\Queue::STATUS_CANCELLED);
-            $this->queueRepository->save($queue);
-        }
-    }
-
-    /**
-     * @param SalesOrder $order
-     * @param $customerSessionId
-     * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function removeAntifraud(SalesOrder $order)
+    public function removeAntifraud(SalesOrder $order): void
     {
         /** @var \Koin\Payment\Model\ResourceModel\Antifraud\Collection $collection */
         $collection = $this->antifraudCollectionFactory->create();
@@ -240,11 +104,7 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
             /** @var \Koin\Payment\Model\Antifraud $antifraud */
             foreach ($collection as $antifraud) {
                 try {
-                    //Search only for pending queue
-                    $queue = $this->getQueue($antifraud->getId());
-                    if ($queue && $queue->getId()) {
-                        $this->cancelQueue($queue);
-                    } elseif ($evaluationId = $antifraud->getEvaluationId()) {
+                    if ($evaluationId = $antifraud->getEvaluationId()) {
                         if ($antifraud->getStatus() == 'received') {
                             $requestPath = $this->helperData->getEndpointConfig('risk/cancel');
                             $request = __('DELETE: %s', str_replace('{evaluation_id}', $evaluationId, $requestPath));
@@ -274,6 +134,11 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
         }
     }
 
+    /**
+     * @param SalesOrder $order
+     * @param $status
+     * @return void
+     */
     public function notification(SalesOrder $order, $status = 'FINALIZED'): void
     {
         /** @var \Koin\Payment\Model\ResourceModel\Antifraud\Collection $collection */
@@ -311,6 +176,13 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
         }
     }
 
+    /**
+     * @param string $evaluationId
+     * @param array $requestData
+     * @param array $queryParams
+     * @param $storeId
+     * @return void
+     */
     public function notify(string $evaluationId, array $requestData, array $queryParams = [], $storeId = null): void
     {
         $urlPath = $this->api->evaluation()->getEndpointPath('risk/notifications', null, $evaluationId);
@@ -329,29 +201,10 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * @param $resourceId
-     * @param $status
-     * @return false|\Koin\Payment\Model\Queue
-     */
-    public function getQueue($resourceId, $status = \Koin\Payment\Model\Queue::STATUS_PENDING)
-    {
-        $queueCollectionFactory = $this->queueCollectionFactory->create();
-        $queueCollectionFactory->addFieldToFilter('resource', \Koin\Payment\Model\Antifraud::RESOURCE_CODE);
-        $queueCollectionFactory->addFieldToFilter('resource_id', $resourceId);
-        $queueCollectionFactory->addFieldToFilter('status', $status);
-
-        if ($queueCollectionFactory->getSize()) {
-            return $queueCollectionFactory->getFirstItem();
-        }
-
-        return false;
-    }
-
-    /**
      * @param $evaluationId
-     * @return \Koin\Payment\Model\Antifraud|\Magento\Framework\DataObject
+     * @return \Koin\Payment\Model\Antifraud|\Magento\Framework\DataObject|null
      */
-    public function loadByEvaluationId($evaluationId)
+    public function loadByEvaluationId($evaluationId): \Koin\Payment\Model\Antifraud|\Magento\Framework\DataObject|null
     {
         /** @var \Koin\Payment\Model\ResourceModel\Antifraud\Collection $collection */
         $collection = $this->antifraudCollectionFactory->create();
@@ -368,9 +221,11 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
      * @param $status
      * @param $score
      * @param $analysisType
+     * @param $strategy
      * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function updateOrderByAnalysis($evaluationId, $status, $score, $analysisType)
+    public function updateOrderByAnalysis($evaluationId, $status, $score, $analysisType, $strategy): void
     {
         /** @var \Koin\Payment\Model\Antifraud $antifraud */
         $antifraud = $this->loadByEvaluationId($evaluationId);
@@ -380,7 +235,7 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
                 $order = $this->helperData->loadOrder($antifraud->getIncrementId());
 
                 $this->updateAntifraud($antifraud, $status, $score, $analysisType);
-                $this->updateOrder($order, $status, $score);
+                $this->updateOrder($order, $status, $score, $strategy);
             }
         }
     }
@@ -404,7 +259,8 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
         $riskId = null,
         $evaluationId = null,
         $message = null
-    ) {
+    ): void
+    {
         $antifraud->setStatus($status);
         $antifraud->setMessage($message);
 
@@ -431,7 +287,7 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
      * @param string $score
      * @param int $score
      */
-    public function updateOrder($order, $status, $score)
+    public function updateOrder($order, $status, $score, $strategyLink): void
     {
         try {
             if ($status == self::APPROVED_STATUS) {
@@ -468,7 +324,7 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
                 }
 
                 $orderState = $this->helperOrder->getStatusState($deniedStatus);
-                $message = __('The order was repproved by Fraud Analysis', $order->getIncrementId());
+                $message = __('The order %1 was repproved by Fraud Analysis', $order->getIncrementId());
 
                 $order->addCommentToStatusHistory($message, $deniedStatus);
                 $order->setState($orderState);
@@ -476,6 +332,12 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
                 /** @var \Magento\Sales\Model\Order\Payment $payment */
                 $payment = $order->getPayment();
                 $payment->setIsFraudDetected(true);
+                $this->helperOrder->savePayment($payment);
+            }
+
+            if ($strategyLink) {
+                $payment = $order->getPayment();
+                $payment->setAdditionalInformation('koin_antifraud_strategy_link', $strategyLink);
                 $this->helperOrder->savePayment($payment);
             }
 
@@ -488,111 +350,106 @@ class Antifraud extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * @param \Koin\Payment\Model\Queue $queue
+     * @param $order
      * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function sendAnalysis($queue): void
+    public function sendAnalysis($order): void
     {
-        if ($queue->getResourceId()) {
-            $queueStatus = \Koin\Payment\Model\Queue::STATUS_RUNNING;
-            try {
-                /** @var \Koin\Payment\Model\Antifraud $antifraud */
-                $antifraud = $this->antifraudRepository->get($queue->getResourceId());
-                if ($antifraud && $antifraud->getId()) {
-                    $order = $this->helperOrder->loadOrder($antifraud->getIncrementId());
-                    if (!$order->getId()) {
-                        throw new \Exception(__('Order %1 not found.', $antifraud->getIncrementId()));
-                    }
-                    $orderData = [
-                        'transaction' => [
-                            'total_amount' => [
-                                'currency_code' => $this->getOrderCurrencyCode($order),
-                                'value' => (float) $order->getGrandTotal(),
-                            ],
-                            'reference_id' => $order->getIncrementId(),
-                            'country_code' => $this->helperData->getDefaultCountryCode(),
-                            'redirected' => false
-                        ],
-                        'buyer' => $this->getBuyerData($order),
-                        'items' => $this->getOrderItems($order),
-                        'payments' => $this->getPaymentData($order),
-                        'type' => self::DEFAULT_TYPE,
-                        'callback_url' => $this->helperData->getAntifraudCallbackUrl($order)
-                    ];
+        if (!$order->getId()) {
+            throw new \Exception(__('Order not found.'));
+        }
+        $antifraud = $this->antifraudFactory->create();
+        $antifraud->setStatus(Api::STATUS_QUEUED);
+        $antifraud->setIncrementId($order->getIncrementId());
+        $antifraud->setSessionId($order->getData('koin_antifraud_fingerprint'));
 
-                    //Admin order doesn't save the remote IP
-                    $remoteIp = $order->getRemoteIp();
-                    if ($remoteIp) {
-                        $orderData['device'] = [
-                            'session_id' => $antifraud->getSessionId()
-                        ];
+        try {
+            $orderData = [
+                'transaction' => [
+                    'total_amount' => [
+                        'currency_code' => $this->getOrderCurrencyCode($order),
+                        'value' => (float)$order->getGrandTotal(),
+                    ],
+                    'reference_id' => $order->getIncrementId(),
+                    'country_code' => $this->helperData->getDefaultCountryCode(),
+                    'redirected' => false
+                ],
+                'buyer' => $this->getBuyerData($order),
+                'items' => $this->getOrderItems($order),
+                'payments' => $this->getPaymentData($order),
+                'type' => self::DEFAULT_TYPE,
+                'callback_url' => $this->helperData->getAntifraudCallbackUrl($order)
+            ];
 
-                        if (filter_var($remoteIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-                            $orderData['device']['ipv4'] = $remoteIp;
-                        } else {
-                            $orderData['device']['ipv6'] = $remoteIp;
-                        }
-                    } else {
-                        $orderData['transaction']['channel'] = 'backoffice';
-                    }
+            //Admin order doesn't save the remote IP
+            $remoteIp = $order->getRemoteIp();
+            if ($remoteIp) {
+                $orderData['device'] = [
+                    'session_id' => $order->getData('koin_antifraud_fingerprint')
+                ];
 
-                    $slaDate = $this->getSlaDate($order);
-                    if ($slaDate) {
-                        $orderData['sla_date'] = $slaDate;
-                    }
-
-                    $storeCode = trim($this->helperData->getGeneralConfig('store_code'));
-                    if ($storeCode) {
-                        $orderData['store']['code'] = $storeCode;
-                    }
-
-                    if (!$order->getIsVirtual()) {
-                        $orderData['shipping'] = $this->getShippingData($order);
-                    }
-
-                    $this->api->logRequest($orderData);
-                    $response = $this->api->evaluation()->sendData($orderData);
-                    $this->api->logResponse($response);
-                    $this->api->saveRequest($orderData, $response['response'], $response['status']);
-
-                    $content = $response['response'] ?? null;
-                    if ($content && $response['status'] < 300) {
-                        $status = $content['status'] ?? null;
-                        if ($status && isset($content['score'])) {
-                            $score = $content['score'];
-                            $analysisType = $content['analysis_type'] ?? null;
-                            $antifraudId = $content['id'] ?? null;
-                            $evaluationId = $content['evaluation_id'] ?? null;
-                            $this->updateAntifraud($antifraud, $status, $score, $analysisType, $antifraudId, $evaluationId);
-                            /** @var SalesOrder $order */
-                            $order = $this->helperData->loadOrder($antifraud->getIncrementId());
-                            $this->updateOrder($order, $status, $score);
-                            $queueStatus = \Koin\Payment\Model\Queue::STATUS_DONE;
-                        } elseif (isset($content['code'])) {
-                            $queueStatus = \Koin\Payment\Model\Queue::STATUS_ERROR;
-                            $this->saveErrorMessage($antifraud, $content);
-                        }
-                    } else {
-                        $queueStatus = \Koin\Payment\Model\Queue::STATUS_ERROR;
-                        $this->saveErrorMessage($antifraud, $content);
-                    }
+                if (filter_var($remoteIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                    $orderData['device']['ipv4'] = $remoteIp;
+                } else {
+                    $orderData['device']['ipv6'] = $remoteIp;
                 }
-            } catch (\Exception $e) {
-                $queueStatus = \Koin\Payment\Model\Queue::STATUS_ERROR;
-                if (isset($antifraud) && $antifraud->getId()) {
-                    $this->updateAntifraud(
-                        $antifraud,
-                        \Koin\Payment\Gateway\Http\Client\Risk\Api::STATUS_ERROR,
-                        null,
-                        null,
-                        null,
-                        null,
-                        $e->getMessage()
-                    );
-                }
+            } else {
+                $orderData['transaction']['channel'] = 'backoffice';
             }
-            $queue->setStatus($queueStatus);
-            $this->queueRepository->save($queue);
+
+            $slaDate = $this->getSlaDate($order);
+            if ($slaDate) {
+                $orderData['sla_date'] = $slaDate;
+            }
+
+            $storeCode = trim($this->helperData->getGeneralConfig('store_code'));
+            if ($storeCode) {
+                $orderData['store']['code'] = $storeCode;
+            }
+
+            if (!$order->getIsVirtual()) {
+                $orderData['shipping'] = $this->getShippingData($order);
+            }
+
+            $this->api->logRequest($orderData);
+            $response = $this->api->evaluation()->sendData($orderData);
+            $this->api->logResponse($response);
+            $this->api->saveRequest($orderData, $response['response'], $response['status']);
+
+            $content = $response['response'] ?? null;
+
+
+            if ($content && $response['status'] < 300) {
+                $status = $content['status'] ?? null;
+                if ($status && isset($content['score'])) {
+                    $strategyLink = $content['strategies'][0]['link'] ?? null;
+                    $score = $content['score'];
+                    $analysisType = $content['analysis_type'] ?? null;
+                    $antifraudId = $content['id'] ?? null;
+                    $evaluationId = $content['evaluation_id'] ?? null;
+                    $this->updateAntifraud($antifraud, $status, $score, $analysisType, $antifraudId, $evaluationId);
+                    $this->updateOrder($order, $status, $score, $strategyLink);
+                } elseif (isset($content['code'])) {
+                    $this->saveErrorMessage($antifraud, $content);
+                }
+            } else {
+                $this->saveErrorMessage($antifraud, $content);
+            }
+
+        } catch (\Exception $e) {
+            $this->helperData->log($e->getMessage());
+            if (isset($antifraud) && $antifraud->getId()) {
+                $this->updateAntifraud(
+                    $antifraud,
+                    \Koin\Payment\Gateway\Http\Client\Risk\Api::STATUS_ERROR,
+                    null,
+                    null,
+                    null,
+                    null,
+                    $e->getMessage()
+                );
+            }
         }
     }
 

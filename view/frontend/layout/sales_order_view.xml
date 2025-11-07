@@ -12,5 +12,15 @@
                 </action>
             </block>
         </referenceContainer>
+        <referenceContainer name="before.body.end">
+            <block class="Magento\Framework\View\Element\Template"
+                   name="koin.success.antifraud.strategy"
+                   template="Koin_Payment::checkout/success/antifraud-strategy.phtml"
+                   ifconfig="koin/fraud_analysis/active_strategy">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Koin\Payment\ViewModel\Checkout\Success\AntifraudStrategy</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
     </body>
 </page>

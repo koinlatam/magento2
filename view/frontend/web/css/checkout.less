@@ -192,4 +192,53 @@
     }
 }
 
+.modal-popup.bnpl-modal._show {
+    .modal-inner-wrap:has(#bnpl-modal) {
 
+        .modal-content {
+            height: 100%;
+
+            #bnpl-modal {
+                height: 100%;
+            }
+        }
+    }
+}
+
+.modal-popup.koin-modal-antifraud-strategy._show {
+    .modal-inner-wrap {
+        width: 100% !important;
+        height: 100% !important;
+        position: fixed;
+        top: 50%;
+        left: 50% !important;
+        margin: 0 !important;
+        transform: translate(-50%, -50%);
+
+        #koin-modal-antifraud-strategy {
+            height: 100%;
+        }
+
+        .modal-content {
+            height: 100%;
+
+            #bnpl-modal {
+                height: 100%;
+            }
+
+            #koin-modal-iframe {
+                min-height: 30vh;
+            }
+        }
+    }
+}
+
+
+@media (min-width: 768px) {
+    .modal-popup.koin-modal-antifraud-strategy._show {
+        .modal-inner-wrap {
+            width: 80vw !important;
+            height: 95vh !important;
+        }
+    }
+}

@@ -55,7 +55,11 @@
         </referenceBlock>
 
         <referenceContainer name="before.body.end">
-            <block class="Magento\Framework\View\Element\Template" ifconfig="payment/koin_redirect/active" template="Koin_Payment::checkout/bnpl/banner.phtml" name="koin.payment.bnpl.banner" after="-" />
+            <block class="Magento\Framework\View\Element\Template" ifconfig="payment/koin_redirect/active" template="Koin_Payment::checkout/bnpl/banner.phtml" name="koin.payment.bnpl.banner" after="-" >
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Koin\Payment\ViewModel\Checkout\BnplModal</argument>
+                </arguments>
+            </block>
             <block class="Koin\Payment\Block\Checkout\Fingerprint" template="Koin_Payment::checkout/fingerprint.phtml" name="koin.payment.fingerprint" after="-" />
         </referenceContainer>
     </body>

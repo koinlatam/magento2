@@ -16,34 +16,23 @@ use Magento\Sales\Model\Order;
 
 class OrderSaveAfter implements ObserverInterface
 {
-    /** @var Data  */
-    protected $helper;
-
-    /** @var Antifraud  */
-    protected $helperAntifraud;
-
-    /** @var NotificationService  */
-    protected $notificationService;
-
     /**
      * @param Data $helper
      * @param Antifraud $helperAntifraud
      * @param NotificationService $notificationService
      */
     public function __construct(
-        Data $helper,
-        Antifraud $helperAntifraud,
-        NotificationService $notificationService
-    ) {
-        $this->helper = $helper;
-        $this->helperAntifraud = $helperAntifraud;
-        $this->notificationService = $notificationService;
+        protected Data $helper,
+        protected Antifraud $helperAntifraud,
+        protected NotificationService $notificationService
+    )
+    {
     }
 
     /**
      * @param Observer $observer
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): void
     {
         /** @var Order $order */
         $order = $observer->getEvent()->getDataObject();
@@ -54,7 +43,7 @@ class OrderSaveAfter implements ObserverInterface
                 $this->notificationService->sendNotificationForOrderState($order);
             }
 
-            $this->addToQueue($order);
+            $this->sendAntifraud($order);
 
         } catch (\Exception $e) {
             $this->helper->log($e->getMessage());
@@ -64,9 +53,9 @@ class OrderSaveAfter implements ObserverInterface
     /**
      * @param Order $order
      * @return void
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Exception
      */
-    protected function addToQueue($order)
+    protected function sendAntifraud($order): void
     {
         if ($this->helper->getAntifraudConfig('active')) {
             $paymentMethods = explode(',', $this->helper->getAntifraudConfig('payment_methods'));
@@ -78,7 +67,7 @@ class OrderSaveAfter implements ObserverInterface
                 if (in_array($order->getPayment()->getMethod(), $paymentMethods)) {
                     if (in_array($order->getStatus(), $statuses)) {
                         if ($order->getGrandTotal() >= $minOrderTotal) {
-                            $this->helperAntifraud->addToQueue($order, $order->getData('koin_antifraud_fingerprint'));
+                            $this->helperAntifraud->sendAnalysis($order);
                         }
                     }
                 }
