@@ -52,6 +52,15 @@ class Data extends \Magento\Payment\Helper\Data
     public const ROUND_FACTOR = 100;
     public const DEFAULT_MERCHANT_NAME = 'adobe';
 
+    /**
+     * Forwarded client-IP headers in priority order ($_SERVER keys), checked before REMOTE_ADDR.
+     */
+    private const CLIENT_IP_HEADERS = [
+        'HTTP_CF_CONNECTING_IP', // Cloudflare
+        'HTTP_TRUE_CLIENT_IP',   // Cloudflare Enterprise / Akamai
+        'HTTP_X_FORWARDED_FOR',  // Generic proxy / WAF chain
+    ];
+
     public const DEFAULT_DELIVERY_TYPE = 'NORMAL';
     public const FINGERPRINT_URL = 'https://securegtm.despegar.com/risk/fingerprint/statics/track-min.js';
 
@@ -448,6 +457,23 @@ class Data extends \Magento\Payment\Helper\Data
 
     public function getCurrentIpAddress(): string
     {
+        $request = $this->_getRequest();
+
+        foreach (self::CLIENT_IP_HEADERS as $serverKey) {
+            $headerValue = (string) $request->getServer($serverKey, '');
+            if ($headerValue === '') {
+                continue;
+            }
+
+            // X-Forwarded-For can be a comma-separated chain; the left-most entry is the client.
+            foreach (explode(',', $headerValue) as $candidate) {
+                $candidate = trim($candidate);
+                if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                    return $candidate;
+                }
+            }
+        }
+
         return (string) $this->remoteAddress->getRemoteAddress();
     }
 

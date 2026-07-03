@@ -1,7 +1,7 @@
 {
     "name": "koin/payment",
     "description": "Koin Payment Method for Magento 2.3.7+",
-    "version": "2.15.0",
+    "version": "2.15.2",
     "license": [
         "OSL-3.0",
         "AFL-3.0"

@@ -173,10 +173,13 @@ class Order extends \Magento\Payment\Helper\Data
 
             if ($koinStatus != $orderStatus) {
                 if ($koinState == self::STATUS_APPROVED) {
-                    if ($koinStatus == Api::STATUS_COLLECTED) {
-                        if ($order->canInvoice()) {
-                            $order = $this->invoiceOrder($order, $amount);
-                        }
+                    if (
+                        $payment->getMethodInstance()->getConfigData('auto_capture')
+                        && $koinStatus == Api::STATUS_AUTHORIZED
+                    ) {
+                       $this->captureOrder($order, Invoice::CAPTURE_ONLINE);
+                    } else if ($koinStatus == Api::STATUS_COLLECTED) {
+                        $this->captureOrder($order, Invoice::CAPTURE_OFFLINE);
                     }
                     $order = $this->addPaidComment($order);
                 } else {
