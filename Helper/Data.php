@@ -62,7 +62,6 @@ class Data extends \Magento\Payment\Helper\Data
     ];
 
     public const DEFAULT_DELIVERY_TYPE = 'NORMAL';
-    public const FINGERPRINT_URL = 'https://securegtm.despegar.com/risk/fingerprint/statics/track-min.js';
 
     public const DEFAULT_DELIVERY_DAYS = 10;
 

@@ -77,6 +77,14 @@ class TransactionRequest extends PaymentsRequest implements BuilderInterface
         return ['request' => $request, 'client_config' => ['store_id' => $order->getStoreId()]];
     }
 
+    protected function getTransaction(Order $order, float $amount): \stdClass
+    {
+        $transaction = parent::getTransaction($order, $amount);
+        $transaction->amount->breakdown = $this->getBreakdown($order);
+
+        return $transaction;
+    }
+
     /**
      * @param $order
      * @param $paymentMethodCode

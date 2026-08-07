@@ -22,14 +22,17 @@ namespace Koin\Payment\Gateway\Request;
 
 use Koin\Payment\Gateway\Http\Client\Payments\Api;
 use Koin\Payment\Helper\Data;
-use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Framework\Event\ManagerInterface;
-use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Payment\Gateway\ConfigInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Model\Order;
+use Magento\Tax\Api\Data\AppliedTaxRateInterface;
+use Magento\Tax\Api\Data\OrderTaxDetailsAppliedTaxInterface;
 
 class PaymentsRequest
 {
@@ -153,6 +156,139 @@ class PaymentsRequest
         return $transaction;
     }
 
+    protected function getBreakdown(Order $order): \stdClass
+    {
+        $currencyCode = $this->getOrderCurrencyCode($order);
+
+        $breakdown = new \stdClass();
+
+        $breakdown->items = new \stdClass();
+        $breakdown->items->currency_code = $currencyCode;
+        $breakdown->items->value = (float) $order->getSubtotal();
+
+        $breakdown->shipping = new \stdClass();
+        $breakdown->shipping->currency_code = $currencyCode;
+        $breakdown->shipping->value = (float) $order->getShippingAmount();
+
+        $breakdown->taxes = new \stdClass();
+        $breakdown->taxes->currency_code = $currencyCode;
+        $breakdown->taxes->value = (float) $order->getTaxAmount();
+        $breakdown->taxes->base = (float) $order->getSubtotal();
+        $breakdown->taxes->tax_details = $this->getTaxDetails($order);
+
+        return $breakdown;
+    }
+
+    protected function getTaxDetails(Order $order): array
+    {
+        $taxDetails = [];
+        try {
+            $appliedTaxes = $order->getExtensionAttributes()?->getAppliedTaxes() ?? [];
+            $base = (float) ($order->getSubtotal() +  $order->getDiscountAmount() + $order->getShippingDiscountAmount());
+            foreach ($appliedTaxes as $appliedTax) {
+                $tax = $this->normalizeAppliedTax($appliedTax);
+                if (empty($tax['rates'])) {
+                    $detail = new \stdClass();
+                    $detail->type = $tax['code'];
+                    $detail->value = $tax['amount'];
+                    $detail->percentage = $tax['percent'];
+                    $detail->base = $base;
+                    $taxDetails[] = $detail;
+                } else {
+                    $taxPercent = $tax['percent'];
+                    foreach ($tax['rates'] as $rate) {
+                        $detail = new \stdClass();
+                        $detail->type = $rate['code'];
+                        $ratePercent = $rate['percent'];
+                        $detail->value = $taxPercent > 0
+                            ? round((float) ($tax['amount'] * ($ratePercent / $taxPercent)), 2)
+                            : 0.0;
+                        $detail->percentage = $ratePercent;
+                        $detail->base = $base;
+                        $taxDetails[] = $detail;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            $this->helper->log($e->getMessage());
+        }
+        return $taxDetails;
+    }
+
+    /**
+     * Flattens a single `applied_taxes` entry into a plain array.
+     *
+     * The extension attribute is declared as OrderTaxDetailsAppliedTaxInterface[], but it is only
+     * populated with objects when the order is loaded through the order repository. While the order
+     * is being placed it is still the one converted from the quote, and
+     * Magento\Tax\Model\Quote\ToOrderConverter fills it with plain arrays instead:
+     *
+     *     ['amount', 'base_amount', 'percent', 'id', 'extension_attributes' => ['rates' => [...]]]
+     *
+     * Calling a getter on those arrays raises \Error, which is not an \Exception and therefore
+     * escapes every catch on the way out, taking the whole checkout down with it. Magento core
+     * branches on the same ambiguity in
+     * Magento\Tax\Model\ResourceModel\Sales\Order\ConvertQuoteTaxToOrderTax.
+     *
+     * Note the array shape carries no `code` - its identifier is `id`, the tax rate key.
+     *
+     * @param array|OrderTaxDetailsAppliedTaxInterface $tax
+     * @return array{code: string, percent: float, amount: float, rates: array}
+     */
+    protected function normalizeAppliedTax($tax): array
+    {
+        if (!is_array($tax)) {
+            return [
+                'code' => (string) ($tax->getCode() ?: ''),
+                'percent' => (float) $tax->getPercent(),
+                'amount' => (float) $tax->getAmount(),
+                'rates' => $this->normalizeRates($tax->getExtensionAttributes()?->getRates() ?? []),
+            ];
+        }
+
+        $extensionAttributes = $tax['extension_attributes'] ?? null;
+        if (is_array($extensionAttributes)) {
+            $rates = $extensionAttributes['rates'] ?? [];
+        } elseif (is_object($extensionAttributes)) {
+            $rates = $extensionAttributes->getRates() ?? [];
+        } else {
+            // Not converted yet: the collector leaves the rates at the top level.
+            $rates = $tax['rates'] ?? [];
+        }
+
+        return [
+            'code' => (string) ($tax['code'] ?? $tax['id'] ?? ''),
+            'percent' => (float) ($tax['percent'] ?? 0),
+            'amount' => (float) ($tax['amount'] ?? 0),
+            'rates' => $this->normalizeRates($rates),
+        ];
+    }
+
+    /**
+     * @param array|AppliedTaxRateInterface[] $rates
+     * @return array<int, array{code: string, percent: float}>
+     */
+    protected function normalizeRates($rates): array
+    {
+        $normalized = [];
+        foreach ($rates as $rate) {
+            $normalized[] = is_array($rate)
+                ? [
+                    'code' => (string) ($rate['code'] ?? ''),
+                    'percent' => (float) ($rate['percent'] ?? 0),
+                ]
+                : [
+                    'code' => (string) ($rate->getCode() ?: ''),
+                    'percent' => (float) $rate->getPercent(),
+                ];
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function getPayerData(Order $order): \stdClass
     {
         $payerData = new \stdClass();
@@ -173,7 +309,10 @@ class PaymentsRequest
 
         $payerData->full_name = $fullName;
         $payerData->email = $order->getCustomerEmail();
-        $payerData->document = $this->getDocument($customerTaxVat);
+
+        $this->isTaxVatRequired($customerTaxVat);
+
+        $payerData->document = ($customerTaxVat !== null && trim($customerTaxVat) !== '') ? $this->getDocument($customerTaxVat) : null;
 
         $phoneNumber = $this->helper->formatPhoneNumber($address->getTelephone() ?: '');
         $payerData->phone = new \stdClass();
@@ -187,6 +326,7 @@ class PaymentsRequest
 
     /**
      * @param Order $order
+     * @throws \Exception
      */
     public function getBuyerData(Order $order): \stdClass
     {
@@ -201,7 +341,10 @@ class PaymentsRequest
         $buyerData->first_name = $order->getCustomerFirstname();
         $buyerData->last_name = $order->getCustomerLastname();
         $buyerData->email = $order->getCustomerEmail();
-        $buyerData->document = $this->getDocument($customerTaxVat);
+
+        $this->isTaxVatRequired($customerTaxVat);
+
+        $buyerData->document = ($customerTaxVat !== null && trim($customerTaxVat) !== '') ? $this->getDocument($customerTaxVat) : null;
 
         $phoneNumber = $this->helper->formatPhoneNumber($address->getTelephone() ?: '');
         $buyerData->phone = new \stdClass();
@@ -211,6 +354,18 @@ class PaymentsRequest
         $buyerData->address = $this->getAddress($address);
 
         return $buyerData;
+    }
+
+    /**
+     * @param string|null $customerTaxVat
+     * @throws LocalizedException
+     */
+    private function isTaxVatRequired(?string $customerTaxVat): void
+    {
+        if ($this->helper->getGeneralConfig('taxvat_required') &&
+            ($customerTaxVat === null || trim($customerTaxVat) === '')) {
+            throw new LocalizedException(__('Customer taxvat is required.'));
+        }
     }
 
     /**

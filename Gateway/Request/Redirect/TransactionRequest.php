@@ -121,7 +121,7 @@ class TransactionRequest extends PaymentsRequest implements BuilderInterface
     protected function getAddress($orderAddress): \stdClass
     {
         $address = parent::getAddress($orderAddress);
-        $address->zip_code = preg_replace('/\D/', '', $orderAddress->getPostcode());
+        $address->zip_code = preg_replace('/\D/', '', (string) $orderAddress->getPostcode());
 
         return $address;
     }

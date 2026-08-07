@@ -37,7 +37,7 @@ class DataProvider extends ModifierPoolDataProvider
         DataPersistorInterface $dataPersistor,
         array $meta = [],
         array $data = [],
-        PoolInterface $pool = null
+        ?PoolInterface $pool = null
     ) {
         $this->collection = $collectionFactory->create();
         $this->dataPersistor = $dataPersistor;

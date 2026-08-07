@@ -91,6 +91,18 @@
         <column xsi:type="boolean" name="has_interest" default="false" comment="Has Interest"/>
         <column xsi:type="varchar" name="interest_type" length="255" nullable="true" comment="Interest Type"/>
         <column xsi:type="decimal" name="interest_rate" precision="12" scale="4" nullable="true" comment="Interest Type"/>
+        <column xsi:type="decimal" name="interest_1_installments" precision="12" scale="4" nullable="true" comment="Interest for 1 Installment"/>
+        <column xsi:type="decimal" name="interest_2_installments" precision="12" scale="4" nullable="true" comment="Interest for 2 Installments"/>
+        <column xsi:type="decimal" name="interest_3_installments" precision="12" scale="4" nullable="true" comment="Interest for 3 Installments"/>
+        <column xsi:type="decimal" name="interest_4_installments" precision="12" scale="4" nullable="true" comment="Interest for 4 Installments"/>
+        <column xsi:type="decimal" name="interest_5_installments" precision="12" scale="4" nullable="true" comment="Interest for 5 Installments"/>
+        <column xsi:type="decimal" name="interest_6_installments" precision="12" scale="4" nullable="true" comment="Interest for 6 Installments"/>
+        <column xsi:type="decimal" name="interest_7_installments" precision="12" scale="4" nullable="true" comment="Interest for 7 Installments"/>
+        <column xsi:type="decimal" name="interest_8_installments" precision="12" scale="4" nullable="true" comment="Interest for 8 Installments"/>
+        <column xsi:type="decimal" name="interest_9_installments" precision="12" scale="4" nullable="true" comment="Interest for 9 Installments"/>
+        <column xsi:type="decimal" name="interest_10_installments" precision="12" scale="4" nullable="true" comment="Interest for 10 Installments"/>
+        <column xsi:type="decimal" name="interest_11_installments" precision="12" scale="4" nullable="true" comment="Interest for 11 Installments"/>
+        <column xsi:type="decimal" name="interest_12_installments" precision="12" scale="4" nullable="true" comment="Interest for 12 Installments"/>
         <column xsi:type="int" name="priority" padding="10" nullable="false" default="0" comment="Priority"/>
         <column xsi:type="varchar" length="255" name="customer_group_ids" nullable="true" comment="Customer Group IDS"/>
         <column xsi:type="varchar" length="255" name="product_set_ids" nullable="true" comment="Product Set IDS"/>

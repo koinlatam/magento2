@@ -30,10 +30,6 @@
         <observer name="koin_payment_payment_method_is_active" instance="Koin\Payment\Observer\PaymentMethodIsActive" />
     </event>
 
-    <event name="checkout_submit_before">
-        <observer name="koin_payment_checkout_submit_before" instance="Koin\Payment\Observer\CheckoutSubmitBefore" />
-    </event>
-
     <event name="sales_model_service_quote_submit_before">
         <observer name="koin_payment_sales_model_service_quote_submit_before" instance="Koin\Payment\Observer\Sales\QuoteSubmitBefore" />
     </event>

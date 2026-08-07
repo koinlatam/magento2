@@ -180,3 +180,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### v2.15.2:
 - fix: adjust remote IP when store was using CloudFlare and other WAFs, to send the correct IP to the antifraud service
 
+### v2.16.0
+- feat: different installment options per each installment in installments rules
+- fix: remove order ID reserve and fix error when redirecting to success page and the increment ID was already reserved
+- feat: add breakdown data to payload
+- fix: adjust to register capture notification instead of offline capture
+- fix: change the value and base data on tax_details
+- feat: new config to toggle the visibility of the taxvat field on checkout
+- fix: generate a new token for each payment attempt
+- change: switch fingerprint (antifraud) domain to antifraud.koinlatam.com (production) and antifraud-sandbox.koinlatam.com (sandbox), replacing securegtm.despegar.com
+- feat: add support for Magento 2.4.9 and PHP 8.5 (allow bacon/bacon-qr-code ^3.0, remove unused firebase/php-jwt dependency, raise PHP requirement to 8.1+)
+

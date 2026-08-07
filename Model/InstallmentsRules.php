@@ -184,6 +184,20 @@ class InstallmentsRules extends AbstractModel implements InstallmentsRulesInterf
         $this->setData(self::INTEREST_RATE, $interestRate);
     }
 
+    public function getInterestRateForInstallment(int $installments): ?float
+    {
+        $value = $this->getData('interest_' . $installments . '_installments');
+        if ($value === null || $value === '') {
+            return null;
+        }
+        return (float) $value;
+    }
+
+    public function setInterestRateForInstallment(int $installments, ?float $rate): void
+    {
+        $this->setData('interest_' . $installments . '_installments', $rate);
+    }
+
     public function getPriority(): int
     {
         return (int) $this->getData(self::PRIORITY);

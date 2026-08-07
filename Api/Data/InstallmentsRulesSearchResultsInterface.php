@@ -16,6 +16,6 @@ interface InstallmentsRulesSearchResultsInterface extends \Magento\Framework\Api
      * @param \Koin\Payment\Api\Data\InstallmentsRulesInterface[] $items
      * @return $this
      */
-    public function setItems(array $items = null);
+    public function setItems(?array $items = null);
 
 }

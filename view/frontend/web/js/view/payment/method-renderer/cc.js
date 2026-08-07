@@ -199,6 +199,10 @@ define([
                 return this.item.method;
             },
 
+            showTaxvatField: function() {
+                return !!window.checkoutConfig.payment?.koin?.taxvat_required;
+            },
+
             /**
              * Get data
              * @returns {Object}

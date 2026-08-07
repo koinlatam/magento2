@@ -41,6 +41,20 @@ interface InstallmentsRulesInterface
     public const HAS_INTEREST = 'has_interest';
     public const INTEREST_TYPE = 'interest_type';
     public const INTEREST_RATE = 'interest_rate';
+    public const INTEREST_1_INSTALLMENTS = 'interest_1_installments';
+    public const INTEREST_2_INSTALLMENTS = 'interest_2_installments';
+    public const INTEREST_3_INSTALLMENTS = 'interest_3_installments';
+    public const INTEREST_4_INSTALLMENTS = 'interest_4_installments';
+    public const INTEREST_5_INSTALLMENTS = 'interest_5_installments';
+    public const INTEREST_6_INSTALLMENTS = 'interest_6_installments';
+    public const INTEREST_7_INSTALLMENTS = 'interest_7_installments';
+    public const INTEREST_8_INSTALLMENTS = 'interest_8_installments';
+    public const INTEREST_9_INSTALLMENTS = 'interest_9_installments';
+    public const INTEREST_10_INSTALLMENTS = 'interest_10_installments';
+    public const INTEREST_11_INSTALLMENTS = 'interest_11_installments';
+    public const INTEREST_12_INSTALLMENTS = 'interest_12_installments';
+
+    public const MAX_INSTALLMENTS_PER_RULE = 12;
     public const PRIORITY = 'priority';
     public const CUSTOMER_GROUP_IDS = 'customer_group_ids';
     public const PRODUCT_SET_IDS = 'product_set_ids';
@@ -105,6 +119,10 @@ interface InstallmentsRulesInterface
     public function getInterestRate(): float;
 
     public function setInterestRate(float $interestRate): void;
+
+    public function getInterestRateForInstallment(int $installments): ?float;
+
+    public function setInterestRateForInstallment(int $installments, ?float $rate): void;
 
     public function getPriority(): int;
 

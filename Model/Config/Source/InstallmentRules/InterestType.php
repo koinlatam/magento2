@@ -38,12 +38,10 @@ class InterestType implements OptionSourceInterface
     {
         $options = [];
         foreach ($this->interestType->toOptionArray() as $value => $label) {
-            if ($value !== 'per_installments') {
-                $options[] = [
-                    'value' => $value,
-                    'label' => $label
-                ];
-            }
+            $options[] = [
+                'value' => $value,
+                'label' => $label
+            ];
         }
         return $options;
     }

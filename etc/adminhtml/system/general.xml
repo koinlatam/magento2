@@ -63,6 +63,13 @@
                 <comment><![CDATA[If your store shows the payment info at success page, DON'T enable this feature]]></comment>
             </field>
 
+            <field id="taxvat_required" translate="label comment" type="select" sortOrder="51" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Show Taxvat Field on Checkout?</label>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>koin/general/taxvat_required</config_path>
+                <comment><![CDATA[If enabled, the Taxvat field will be displayed on checkout.]]></comment>
+            </field>
+
             <field id="debug" translate="label" type="select" sortOrder="55" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Enable Log Requests</label>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

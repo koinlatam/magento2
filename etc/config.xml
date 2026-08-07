@@ -19,6 +19,7 @@
             <general>
                 <refund_on_cancel>1</refund_on_cancel>
                 <show_payment_info>0</show_payment_info>
+                <taxvat_required>1</taxvat_required>
                 <sandbox_3ds_strategy>challenge</sandbox_3ds_strategy>
             </general>
             <payments>
@@ -40,6 +41,8 @@
                 <antifraud_uri_sandbox>https://api-sandbox.koin.com.br/</antifraud_uri_sandbox>
                 <pci_sdk_url>https://api-secure.koin.com.br/checkout/static/scripts/sdk/tokenize.js</pci_sdk_url>
                 <pci_sdk_url_sandbox>https://portal-dev.koin.com.br/checkout/static/scripts/sdk/tokenize.js</pci_sdk_url_sandbox>
+                <fingerprint_url>https://antifraud.koinlatam.com/risk/fingerprint/statics/track-min.js</fingerprint_url>
+                <fingerprint_url_sandbox>https://antifraud-sandbox.koinlatam.com/risk/fingerprint/statics/b-track-min.js</fingerprint_url_sandbox>
                 <secure>
                     <tokenize>v1/payment/tokenize</tokenize>
                 </secure>

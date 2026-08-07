@@ -61,6 +61,10 @@ define(
                 return 'koin_redirect';
             },
 
+            showTaxvatField: function() {
+                return !!window.checkoutConfig.payment?.koin?.taxvat_required;
+            },
+
             logoOnCheckout: function() {
                 var inputClasses = 'radio';
                 if (window.checkoutConfig.payment.koin_redirect.show_logo_on_checkout) {

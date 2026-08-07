@@ -60,7 +60,10 @@ class Fingerprint extends Template
 
     public function getFingerprintUrl()
     {
-        return Data::FINGERPRINT_URL;
+        $configPath = $this->helper->getGeneralConfig('use_sandbox')
+            ? 'fingerprint_url_sandbox'
+            : 'fingerprint_url';
+        return $this->helper->getEndpointConfig($configPath) ?: '';
     }
 
     public function getOrgId()

@@ -256,6 +256,11 @@
         </field>
 
         <field name="interest_type" sortOrder="90" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">Koin_Payment/js/form/element/interest-type-select</item>
+                </item>
+            </argument>
             <settings>
                 <dataType>text</dataType>
                 <label translate="true">Interest Type</label>
@@ -276,6 +281,9 @@
                 <label translate="true">Interest Rate</label>
                 <notice translate="true">Use dot as a decimal separator, e.g.: 100.00</notice>
                 <dataScope>interest_rate</dataScope>
+                <imports>
+                    <link name="visible">${ $.parentName }.interest_type:isNotPerInstallments</link>
+                </imports>
             </settings>
         </field>
 
@@ -291,6 +299,152 @@
             </settings>
         </field>
 
+    </fieldset>
+
+    <fieldset name="interest_per_installments" sortOrder="15">
+        <settings>
+            <label translate="true">Interest Per Installments</label>
+            <collapsible>true</collapsible>
+            <opened>true</opened>
+            <additionalClasses>
+                <class name="koin-rules-interest-per-installments">true</class>
+            </additionalClasses>
+            <imports>
+                <link name="visible">${ $.parentName }.general.interest_type:isPerInstallments</link>
+            </imports>
+        </settings>
+
+        <field name="interest_1_installments" sortOrder="10" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 1 installment</label>
+                <dataScope>interest_1_installments</dataScope>
+            </settings>
+        </field>
+
+        <field name="interest_2_installments" sortOrder="20" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 2 installments</label>
+                <dataScope>interest_2_installments</dataScope>
+            </settings>
+        </field>
+
+        <field name="interest_3_installments" sortOrder="30" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 3 installments</label>
+                <dataScope>interest_3_installments</dataScope>
+            </settings>
+        </field>
+
+        <field name="interest_4_installments" sortOrder="40" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 4 installments</label>
+                <dataScope>interest_4_installments</dataScope>
+            </settings>
+        </field>
+
+        <field name="interest_5_installments" sortOrder="50" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 5 installments</label>
+                <dataScope>interest_5_installments</dataScope>
+            </settings>
+        </field>
+
+        <field name="interest_6_installments" sortOrder="60" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 6 installments</label>
+                <dataScope>interest_6_installments</dataScope>
+            </settings>
+        </field>
+
+        <field name="interest_7_installments" sortOrder="70" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 7 installments</label>
+                <dataScope>interest_7_installments</dataScope>
+            </settings>
+        </field>
+
+        <field name="interest_8_installments" sortOrder="80" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 8 installments</label>
+                <dataScope>interest_8_installments</dataScope>
+            </settings>
+        </field>
+
+        <field name="interest_9_installments" sortOrder="90" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 9 installments</label>
+                <dataScope>interest_9_installments</dataScope>
+            </settings>
+        </field>
+
+        <field name="interest_10_installments" sortOrder="100" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 10 installments</label>
+                <dataScope>interest_10_installments</dataScope>
+            </settings>
+        </field>
+
+        <field name="interest_11_installments" sortOrder="110" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 11 installments</label>
+                <dataScope>interest_11_installments</dataScope>
+            </settings>
+        </field>
+
+        <field name="interest_12_installments" sortOrder="120" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Interest orders with 12 installments</label>
+                <dataScope>interest_12_installments</dataScope>
+            </settings>
+        </field>
     </fieldset>
 
     <fieldset name="conditions">

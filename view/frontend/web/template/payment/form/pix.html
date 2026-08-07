@@ -18,6 +18,7 @@
                 </dd>
             </dl>
 
+            <!-- ko if: showTaxvatField() -->
             <div class="field number required" data-bind="attr: {id: getCode() + '_taxat'}">
                 <label data-bind="attr: {for: getCode() + '_taxvat'}" class="label">
                     <span><!-- ko i18n: 'Customer Taxvat' --><!-- /ko --></span>
@@ -32,12 +33,13 @@
                                         title: $t('Customer Taxvat'),
                                         maxlength: 11,
                                         'data-container': getCode() + '-taxvat',
-                                        'data-validate': JSON.stringify({'required':true, 'required-number':true})
+                                        'data-validate': JSON.stringify({'required': true, 'required-number':true})
                                       },
                                       value: taxvat,
                                       valueUpdate: 'keyup' "/>
                 </div>
             </div>
+            <!-- /ko -->
 
 
             <!-- ko foreach: getRegion('messages') -->

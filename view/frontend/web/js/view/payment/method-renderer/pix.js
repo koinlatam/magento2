@@ -28,6 +28,10 @@ define(
                 return 'koin_pix';
             },
 
+            showTaxvatField: function() {
+                return !!window.checkoutConfig.payment?.koin?.taxvat_required;
+            },
+
             getData: function() {
                 return {
                     'method': this.item.method,

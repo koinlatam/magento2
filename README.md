@@ -20,7 +20,6 @@ Essa primeira etapa faça apenas se seu Magento não tem o Laminas (versões men
 
 ```
 composer require laminas/laminas-http:>2.4.0 
-composer require firebase/php-jwt:* 
 composer require bacon/bacon-qr-code:* 
 ```
 g

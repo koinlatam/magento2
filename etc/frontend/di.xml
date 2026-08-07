@@ -16,6 +16,7 @@
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
+                <item name="koin_config_provider" xsi:type="object">Koin\Payment\Model\Ui\ConfigProvider</item>
                 <item name="koin_redirect_config_provider" xsi:type="object">Koin\Payment\Model\Ui\Redirect\ConfigProvider</item>
                 <item name="koin_pix_config_provider" xsi:type="object">Koin\Payment\Model\Ui\Pix\ConfigProvider</item>
                 <item name="koin_cc_config_provider" xsi:type="object">Koin\Payment\Model\Ui\CreditCard\ConfigProvider</item>
