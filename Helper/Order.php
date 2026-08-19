@@ -617,10 +617,10 @@ class Order extends \Magento\Payment\Helper\Data
                 $payment->setAdditionalInformation('refund_status', $transaction['status']['type']);
             }
         }
-
-        if (isset($transaction['amount'])) {
-            if (isset($transaction['amount']['value'])) {
-                $refundAmount = (float) $transaction['amount']['value'];
+        $amount = $transaction['transaction']['amount'] ?? $transaction['amount'];
+        if ($amount) {
+            if (isset($amount['value'])) {
+                $refundAmount = (float) $amount['value'];
                 $orderRefunded = (float) $payment->getAdditionalInformation('total_refunded');
                 $payment->setAdditionalInformation('total_refunded', $refundAmount + $orderRefunded);
             }
