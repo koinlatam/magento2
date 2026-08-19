@@ -35,6 +35,8 @@
     <preference for="Koin\Payment\Api\InstallmentsRulesRepositoryInterface" type="Koin\Payment\Model\ResourceModel\InstallmentsRulesRepository"/>
     <preference for="Koin\Payment\Api\Data\InstallmentsRulesSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
 
+    <preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="Koin\Payment\Model\ResourceModel\Order\Handler\State"/>
+
     <!-- Plugins -->
 <!--    <type name="Magento\Sales\Api\OrderRepositoryInterface">-->
 <!--        <plugin name="koin_antifraud_to_sales_order" type="Koin\Payment\Plugin\AddDataToSaleOrder" />-->

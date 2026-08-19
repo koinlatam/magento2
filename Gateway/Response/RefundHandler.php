@@ -80,7 +80,7 @@ class RefundHandler implements HandlerInterface
             throw new LocalizedException(__('There was an error processing your request.'));
         }
 
-        $amount = $transaction['amount']['value'] ?? 0;
+        $amount = $transaction['amount']['value'] ?? $transaction['transaction']['amount']['value'] ?? 0;
         if ($amount > 0) {
             /** @var \Magento\Sales\Model\Order\Payment $payment */
             $payment = $paymentData->getPayment();
