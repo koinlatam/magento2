@@ -37,6 +37,7 @@ use Magento\Sales\Model\Order;
 use Magento\Store\Model\App\Emulation;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\Phrase;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
@@ -74,6 +75,20 @@ class Data extends \Magento\Payment\Helper\Data
     public const CAPTUE_ORDER_LOCK_PREFIX = 'CAPTURE_ORDER_';
 
     public const LOCK_TIMEOUT = 15;
+
+    private const FAILED_TRANSACTION_REASON_MESSAGES = [
+        'Rejected' => 'The transaction was declined. The acquirer does not allow this transaction to be processed.',
+        'InsufficientFunds' => 'The transaction was declined because the card has insufficient funds. Please try a different card.',
+        'InvalidCard' => 'The transaction was declined because the card details are invalid. Please try again.',
+        'Referred' => 'The transaction was declined. The customer should contact their bank.',
+        'ExpiredCard' => 'The transaction was declined because the card is expired. Please try a different card.',
+        'InvalidConfiguration' => 'The transaction was declined due to a processing error. Contact Koin for more details.',
+        'InvalidPlanConfiguration' => 'The transaction was declined due to missing configuration for this card brand/type/account. Contact Koin for more details.',
+        'Undefined' => 'The transaction was declined due to an unexpected error.',
+        'StolenCard' => 'The transaction was declined because the card is reported as stolen (fraud). Please try a different card.',
+        'ConnectionRefused' => 'The transaction was declined due to a processing error. The acquirer and supplier are working on it.',
+        'InvalidData' => 'The transaction was declined due to a processing error. Contact Koin for more details.',
+    ];
 
     /** @var ResourceConnection */
     protected $resourceConnection;
@@ -182,6 +197,16 @@ class Data extends \Magento\Payment\Helper\Data
         $this->file = $file;
         $this->httpClient = $httpClient;
         $this->lockManager = $lockManager;
+    }
+
+
+    public function getFailedCcTransactionMessage(?string $reason): Phrase
+    {
+        if ($reason && isset(self::FAILED_TRANSACTION_REASON_MESSAGES[$reason])) {
+            return __(self::FAILED_TRANSACTION_REASON_MESSAGES[$reason]);
+        }
+
+        return __('There was an error processing your request.');
     }
 
     public function getAllowedMethods(): array

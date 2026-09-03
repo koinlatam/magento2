@@ -89,7 +89,7 @@ class TransactionHandler implements HandlerInterface
         $responseStatus = $transaction['status'] ?? [];
         $responseStatusType = $responseStatus['type'] ?? null;
         if (empty($responseStatus) || $responseStatusType === Api::STATUS_FAILED) {
-            throw new LocalizedException(__('There was an error processing your request.'));
+            throw new LocalizedException($this->helper->getFailedCcTransactionMessage($responseStatus['reason'] ?? null));
         }
 
         if ($responseStatusType === Api::STATUS_VOIDED) {
