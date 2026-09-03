@@ -191,3 +191,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - change: switch fingerprint (antifraud) domain to antifraud.koinlatam.com (production) and antifraud-sandbox.koinlatam.com (sandbox), replacing securegtm.despegar.com
 - feat: add support for Magento 2.4.9 and PHP 8.5 (allow bacon/bacon-qr-code ^3.0, remove unused firebase/php-jwt dependency, raise PHP requirement to 8.1+)
 
+### v2.17.0
+- fix: get the amount from refund response and allow the state changing for virtual paid orders
+- fix: add message error when request fails at checkout
+- feat: mapping the failed response reason description
+- fix: give grand total to load the installment rules

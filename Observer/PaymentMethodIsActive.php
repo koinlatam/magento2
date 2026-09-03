@@ -58,7 +58,7 @@ class PaymentMethodIsActive implements ObserverInterface
             }
         } else if ($methodCode == CreditCardConfigProvider::CODE) {
             if (!$this->helper->getCcConfig('enable_default_installment')) {
-                $installmentsRules = $this->helperInstallments->getAllInstallments();
+                $installmentsRules = $this->helperInstallments->getAllInstallments(total: $event->getQuote()->getGrandTotal());
                 if (empty($installmentsRules)) {
                     /** @var DataObject $result */
                     $result = $observer->getEvent()->getResult();
