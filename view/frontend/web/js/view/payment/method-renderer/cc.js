@@ -452,6 +452,19 @@ define([
 
             handleKoinError: function(error) {
                 console.error('Koin Checkout Error:', error);
+                this.isPlacingOrder = false;
+                this.messageContainer.addErrorMessage({
+                    message: this.getKoinErrorMessage(error)
+                });
+            },
+
+            getKoinErrorMessage: function(error) {
+                if (error) {
+                    if (error?.message?.length > 0) {
+                        return error.message;
+                    }
+                }
+                return $t('There was an error processing your request.');
             },
 
             validatePciForm: function() {
